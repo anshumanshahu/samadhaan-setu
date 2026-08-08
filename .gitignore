@@ -1,1 +1,63 @@
-backend/.env
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.local
+.env.*.local
+
+# =========================
+# Dependencies
+# =========================
+node_modules/
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Build / Production
+# =========================
+dist/
+build/
+coverage/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.vite/
+.eslintcache
+
+# =========================
+# Runtime
+# =========================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Editor / IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.temp
