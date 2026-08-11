@@ -33,7 +33,7 @@ const Header = () => {
 
         <div className="flex items-center gap-3">
           <button className="hidden sm:inline-flex bg-brand-green text-white text-[0.82rem] md:text-sm font-semibold px-4 md:px-5 py-2.5 rounded-full hover:bg-brand-green/90 transition-colors duration-200 whitespace-nowrap">
-            Report an Issue
+            Log In / Sign Up
           </button>
           <button
             className="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-brand-green"
