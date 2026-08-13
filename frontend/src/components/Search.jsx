@@ -1,45 +1,51 @@
 import { useEffect, useState } from "react";
-import { FaMapMarkerAlt, FaPlus, FaLocationArrow } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaPlus,
+  FaLocationArrow,
+  FaExclamationCircle,
+  FaCopy,
+} from "react-icons/fa";
 
 const Search = () => {
   const [location, setLocation] = useState({
     address: "",
     latitude: null,
     longitude: null,
+    accuracy: null,
   });
 
   const [loading, setLoading] = useState(false);
+  const [isNagpur, setIsNagpur] = useState(false);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setLocation((prev) => ({
-        ...prev,
-        address: "Geolocation is not supported by this browser",
-      }));
+      setError("Geolocation is not supported by your browser.");
       return;
     }
 
     setLoading(true);
+    setError("");
+    setIsNagpur(false);
+    setCopied(false);
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude, accuracy } = position.coords;
 
-        // Save exact GPS coordinates
+        // Exact GPS coordinates
         setLocation({
           address: "Finding your exact location...",
           latitude,
           longitude,
+          accuracy,
         });
 
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1&zoom=18`,
-            {
-              headers: {
-                Accept: "application/json",
-              },
-            }
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=jsonv2&addressdetails=1&zoom=18&accept-language=en`
           );
 
           if (!response.ok) {
@@ -49,11 +55,59 @@ const Search = () => {
           const data = await response.json();
           const address = data.address || {};
 
-          /*
-            Build the most detailed readable address possible
-          */
+          // -----------------------------
+          // NAGPUR VALIDATION
+          // -----------------------------
 
-          const houseNumber = address.house_number || "";
+          const countryCode =
+            address.country_code?.toLowerCase() || "";
+
+          const city = (
+            address.city ||
+            address.town ||
+            address.municipality ||
+            address.village ||
+            ""
+          ).toLowerCase();
+
+          const district = (
+            address.city_district ||
+            address.district ||
+            address.county ||
+            ""
+          ).toLowerCase();
+
+          const state = (
+            address.state || ""
+          ).toLowerCase();
+
+          const validNagpurLocation =
+            countryCode === "in" &&
+            state.includes("maharashtra") &&
+            (city.includes("nagpur") ||
+              district.includes("nagpur"));
+
+          if (!validNagpurLocation) {
+            setIsNagpur(false);
+
+            setError(
+              "This service is currently available only within Nagpur."
+            );
+
+            setLoading(false);
+            return;
+          }
+
+          // -----------------------------
+          // DETAILED ADDRESS
+          // -----------------------------
+
+          const houseNumber =
+            address.house_number || "";
+
+          const houseName =
+            address.house_name || "";
+
           const road =
             address.road ||
             address.pedestrian ||
@@ -63,6 +117,7 @@ const Search = () => {
 
           const neighbourhood =
             address.neighbourhood ||
+            address.quarter ||
             address.residential ||
             "";
 
@@ -76,74 +131,86 @@ const Search = () => {
             address.district ||
             "";
 
-          const city =
-            address.city ||
-            address.town ||
-            address.village ||
-            address.municipality ||
-            "";
+          const postcode =
+            address.postcode || "";
 
-          const state = address.state || "";
-
-          const postcode = address.postcode || "";
-
-          // Create detailed address
           const parts = [
+            houseName,
             houseNumber && road
               ? `${houseNumber} ${road}`
               : road,
             neighbourhood,
             suburb,
             cityDistrict,
-            city,
-            state,
+            "Nagpur",
+            "Maharashtra",
             postcode,
           ].filter(Boolean);
 
-          // Remove duplicate values
-          const uniqueParts = [...new Set(parts)];
-
-          const fullAddress =
-            uniqueParts.length > 0
-              ? uniqueParts.join(", ")
-              : data.display_name || "Current Location";
+          const fullAddress = [
+            ...new Set(parts),
+          ].join(", ");
 
           setLocation({
-            address: fullAddress,
+            address:
+              fullAddress ||
+              data.display_name ||
+              "Nagpur, Maharashtra",
             latitude,
             longitude,
+            accuracy,
           });
-        } catch (error) {
-          console.error("Reverse geocoding error:", error);
 
-          setLocation({
-            address: "Address unavailable",
-            latitude,
-            longitude,
-          });
+          setIsNagpur(true);
+        } catch (err) {
+          console.error(
+            "Reverse geocoding error:",
+            err
+          );
+
+          setError(
+            "Unable to determine your exact area."
+          );
+
+          setIsNagpur(false);
         } finally {
           setLoading(false);
         }
       },
 
       (error) => {
-        console.error("Location error:", error);
+        console.error(
+          "Geolocation error:",
+          error
+        );
 
-        let message = "Unable to detect location";
+        setIsNagpur(false);
 
-        if (error.code === error.PERMISSION_DENIED) {
-          message = "Please allow location access";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          message = "Location information unavailable";
-        } else if (error.code === error.TIMEOUT) {
-          message = "Location request timed out";
+        if (
+          error.code ===
+          error.PERMISSION_DENIED
+        ) {
+          setError(
+            "Please allow location access to report an issue."
+          );
+        } else if (
+          error.code ===
+          error.POSITION_UNAVAILABLE
+        ) {
+          setError(
+            "Your location is currently unavailable."
+          );
+        } else if (
+          error.code === error.TIMEOUT
+        ) {
+          setError(
+            "Location detection timed out. Please try again."
+          );
+        } else {
+          setError(
+            "Unable to detect your location."
+          );
         }
-
-        setLocation({
-          address: message,
-          latitude: null,
-          longitude: null,
-        });
 
         setLoading(false);
       },
@@ -156,38 +223,94 @@ const Search = () => {
     );
   };
 
-  // Automatically detect location when page loads
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!location.latitude || !location.longitude) {
-      alert("Please allow location access first.");
+  // Copy coordinates in Google Maps friendly format
+  const copyCoordinates = async () => {
+    if (
+      location.latitude === null ||
+      location.longitude === null
+    ) {
       return;
     }
 
-    console.log("Report Location:", {
+    const coordinates = `${location.latitude.toFixed(
+      6
+    )}, ${location.longitude.toFixed(6)}`;
+
+    try {
+      await navigator.clipboard.writeText(
+        coordinates
+      );
+
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error(
+        "Copy failed:",
+        error
+      );
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!isNagpur) {
+      setError(
+        "You can report issues only from Nagpur."
+      );
+      return;
+    }
+
+    const reportLocation = {
       address: location.address,
+      coordinates: `${location.latitude}, ${location.longitude}`,
       latitude: location.latitude,
       longitude: location.longitude,
-    });
+      accuracy: location.accuracy,
+      city: "Nagpur",
+      state: "Maharashtra",
+    };
+
+    console.log(
+      "Report Location:",
+      reportLocation
+    );
 
     /*
-      Example:
-
-      navigate(
-        `/report?address=${encodeURIComponent(
-          location.address
-        )}&lat=${location.latitude}&lng=${location.longitude}`
-      );
+      Navigate to report page here.
     */
   };
 
+  const coordinates =
+    location.latitude !== null &&
+    location.longitude !== null
+      ? `${location.latitude.toFixed(
+          6
+        )}, ${location.longitude.toFixed(6)}`
+      : "";
+
   return (
-    <div className="w-full max-w-4xl mx-auto -mt-6 sm:-mt-8 md:-mt-10 relative z-10 px-3 sm:px-4">
+    <div
+      className="
+        w-full
+        max-w-4xl
+        mx-auto
+        -mt-6
+        sm:-mt-8
+        md:-mt-10
+        relative
+        z-10
+        px-3
+        sm:px-4
+      "
+    >
       <form
         onSubmit={handleSubmit}
         className="
@@ -195,7 +318,8 @@ const Search = () => {
           rounded-2xl
           shadow-lg
           border border-gray-100
-          p-3 sm:p-4
+          p-3
+          sm:p-4
           flex flex-col
           gap-3
         "
@@ -204,112 +328,280 @@ const Search = () => {
         <div
           className="
             w-full
-            flex items-center
-            gap-3
-            px-3 py-3
-            sm:px-4
             rounded-xl
             bg-gray-50
             border border-gray-100
+            p-3
+            sm:p-4
           "
         >
-          {/* Icon */}
+          {/* Address */}
+          <div className="flex items-start gap-3">
+            <div
+              className="
+                shrink-0
+                w-9 h-9
+                sm:w-10 sm:h-10
+                rounded-full
+                bg-brand-green/10
+                flex items-center
+                justify-center
+              "
+            >
+              <FaMapMarkerAlt className="text-brand-green" />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p
+                className="
+                  text-[10px]
+                  sm:text-[11px]
+                  text-gray-400
+                  font-semibold
+                  uppercase
+                  tracking-wide
+                "
+              >
+                Precise Location
+              </p>
+
+              <p
+                className="
+                  mt-0.5
+                  text-xs
+                  sm:text-sm
+                  text-gray-700
+                  font-semibold
+                  leading-5
+                "
+              >
+                {loading
+                  ? "Finding your exact location..."
+                  : location.address ||
+                    "Detecting location..."}
+              </p>
+            </div>
+
+            {/* Refresh */}
+            <button
+              type="button"
+              onClick={getCurrentLocation}
+              disabled={loading}
+              aria-label="Refresh location"
+              className="
+                shrink-0
+                w-9 h-9
+                sm:w-auto
+                sm:h-auto
+                sm:px-3
+                sm:py-2
+                rounded-lg
+                text-brand-green
+                bg-brand-green/5
+                hover:bg-brand-green/10
+                transition
+                flex items-center
+                justify-center
+                gap-2
+                disabled:opacity-50
+              "
+            >
+              <FaLocationArrow
+                className={`text-xs ${
+                  loading
+                    ? "animate-spin"
+                    : ""
+                }`}
+              />
+
+              <span
+                className="
+                  hidden
+                  sm:inline
+                  text-xs
+                  font-semibold
+                "
+              >
+                {loading
+                  ? "Detecting..."
+                  : "Refresh"}
+              </span>
+            </button>
+          </div>
+
+          {/* COPY-FRIENDLY COORDINATES */}
+          {coordinates && (
+            <div className="mt-3">
+              <p
+                className="
+                  text-[10px]
+                  sm:text-[11px]
+                  text-gray-400
+                  font-semibold
+                  uppercase
+                  tracking-wide
+                  mb-1.5
+                "
+              >
+                GPS Coordinates
+              </p>
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  bg-white
+                  border
+                  border-gray-200
+                  rounded-lg
+                  px-3
+                  py-2.5
+                "
+              >
+                <code
+                  className="
+                    flex-1
+                    min-w-0
+                    text-xs
+                    sm:text-sm
+                    font-mono
+                    font-semibold
+                    text-gray-700
+                    truncate
+                  "
+                >
+                  {coordinates}
+                </code>
+
+                <button
+                  type="button"
+                  onClick={copyCoordinates}
+                  className="
+                    shrink-0
+                    flex
+                    items-center
+                    gap-1.5
+                    px-2.5
+                    py-1.5
+                    rounded-md
+                    bg-brand-green/10
+                    text-brand-green
+                    hover:bg-brand-green/20
+                    transition
+                    text-xs
+                    font-semibold
+                  "
+                >
+                  <FaCopy />
+
+                  <span className="hidden sm:inline">
+                    {copied
+                      ? "Copied!"
+                      : "Copy"}
+                  </span>
+                </button>
+              </div>
+
+              <p
+                className="
+                  mt-1.5
+                  text-[10px]
+                  text-gray-400
+                "
+              >
+
+              </p>
+            </div>
+          )}
+
+          {/* GPS ACCURACY */}
+          {location.accuracy !== null && (
+            <div
+              className="
+                mt-2
+                flex
+                items-center
+                justify-between
+                text-[10px]
+                sm:text-xs
+                text-gray-400
+              "
+            >
+              <span>GPS Accuracy</span>
+
+              <span
+                className="
+                  font-semibold
+                  text-gray-600
+                "
+              >
+                ±
+                {Math.round(
+                  location.accuracy
+                )}{" "}
+                meters
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* ERROR */}
+        {error && (
           <div
             className="
-              shrink-0
-              w-9 h-9
-              sm:w-10 sm:h-10
-              rounded-full
-              bg-brand-green/10
-              flex items-center justify-center
+              flex
+              items-start
+              gap-2
+              px-3
+              py-2.5
+              rounded-xl
+              bg-red-50
+              border border-red-100
+              text-red-600
+              text-xs
+              sm:text-sm
             "
           >
-            <FaMapMarkerAlt className="text-brand-green text-sm sm:text-base" />
+            <FaExclamationCircle className="mt-0.5 shrink-0" />
+
+            <span>{error}</span>
           </div>
-
-          {/* Address */}
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] sm:text-[11px] text-gray-400 font-semibold uppercase tracking-wide">
-              Precise Location
-            </p>
-
-            <p
-              className="
-                mt-0.5
-                text-xs sm:text-sm
-                text-gray-700
-                font-medium
-                leading-5
-              "
-              title={location.address}
-            >
-              {location.address || "Detecting your location..."}
-            </p>
-
-            {/* Coordinates */}
-            {location.latitude && location.longitude && (
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                {location.latitude.toFixed(6)},{" "}
-                {location.longitude.toFixed(6)}
-              </p>
-            )}
-          </div>
-
-          {/* Refresh */}
-          <button
-            type="button"
-            onClick={getCurrentLocation}
-            disabled={loading}
-            aria-label="Refresh location"
-            className="
-              shrink-0
-              w-9 h-9
-              sm:w-auto sm:h-auto
-              sm:px-3 sm:py-2
-              rounded-lg
-              text-brand-green
-              bg-brand-green/5
-              hover:bg-brand-green/10
-              transition
-              flex items-center justify-center gap-2
-              disabled:opacity-50
-            "
-          >
-            <FaLocationArrow
-              className={`text-xs ${
-                loading ? "animate-spin" : ""
-              }`}
-            />
-
-            <span className="hidden sm:inline text-xs font-semibold">
-              {loading ? "Detecting..." : "Refresh"}
-            </span>
-          </button>
-        </div>
+        )}
 
         {/* REPORT ISSUE */}
         <button
           type="submit"
+          disabled={!isNagpur || loading}
           className="
             w-full
             min-h-[52px]
-            flex items-center justify-center
+            flex
+            items-center
+            justify-center
             gap-2.5
             bg-brand-green
             text-white
             font-semibold
-            text-sm sm:text-base
-            px-5 py-3
+            text-sm
+            sm:text-base
+            px-5
+            py-3
             rounded-xl
             hover:bg-brand-green/90
             active:scale-[0.98]
             hover:shadow-md
-            transition-all duration-200
+            transition-all
+            duration-200
+            disabled:opacity-50
+            disabled:cursor-not-allowed
           "
         >
           <span
             className="
-              flex items-center justify-center
+              flex
+              items-center
+              justify-center
               w-7 h-7
               sm:w-8 sm:h-8
               rounded-full
@@ -319,7 +611,11 @@ const Search = () => {
             <FaPlus className="text-xs sm:text-sm" />
           </span>
 
-          <span>Report Issue</span>
+          <span>
+            {isNagpur
+              ? "Report Issue"
+              : "Nagpur Location Required"}
+          </span>
         </button>
       </form>
     </div>
