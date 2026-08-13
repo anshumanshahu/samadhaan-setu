@@ -2,101 +2,189 @@ import { useEffect, useState } from "react";
 import { FaMapMarkerAlt, FaPlus, FaLocationArrow } from "react-icons/fa";
 
 const Search = () => {
-  const [area, setArea] = useState("");
+  const [location, setLocation] = useState({
+    address: "",
+    latitude: null,
+    longitude: null,
+  });
+
   const [loading, setLoading] = useState(false);
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setArea("Location is not supported by your browser");
+      setLocation((prev) => ({
+        ...prev,
+        address: "Geolocation is not supported by this browser",
+      }));
       return;
     }
 
     setLoading(true);
-    setArea("Detecting your location...");
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
 
+        // Save exact GPS coordinates
+        setLocation({
+          address: "Finding your exact location...",
+          latitude,
+          longitude,
+        });
+
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1&zoom=18`,
+            {
+              headers: {
+                Accept: "application/json",
+              },
+            }
           );
 
           if (!response.ok) {
-            throw new Error("Failed to fetch address");
+            throw new Error("Unable to fetch address");
           }
 
           const data = await response.json();
           const address = data.address || {};
 
-          const road = address.road || "";
-          const areaName =
-            address.suburb ||
+          /*
+            Build the most detailed readable address possible
+          */
+
+          const houseNumber = address.house_number || "";
+          const road =
+            address.road ||
+            address.pedestrian ||
+            address.footway ||
+            address.path ||
+            "";
+
+          const neighbourhood =
             address.neighbourhood ||
+            address.residential ||
+            "";
+
+          const suburb =
+            address.suburb ||
+            address.subdistrict ||
+            "";
+
+          const cityDistrict =
             address.city_district ||
+            address.district ||
             "";
 
           const city =
             address.city ||
             address.town ||
             address.village ||
+            address.municipality ||
             "";
 
           const state = address.state || "";
 
-          const locationParts = [
-            road,
-            areaName,
+          const postcode = address.postcode || "";
+
+          // Create detailed address
+          const parts = [
+            houseNumber && road
+              ? `${houseNumber} ${road}`
+              : road,
+            neighbourhood,
+            suburb,
+            cityDistrict,
             city,
             state,
+            postcode,
           ].filter(Boolean);
 
-          const fullLocation = [...new Set(locationParts)].join(", ");
+          // Remove duplicate values
+          const uniqueParts = [...new Set(parts)];
 
-          setArea(fullLocation || "Current Location");
+          const fullAddress =
+            uniqueParts.length > 0
+              ? uniqueParts.join(", ")
+              : data.display_name || "Current Location";
+
+          setLocation({
+            address: fullAddress,
+            latitude,
+            longitude,
+          });
         } catch (error) {
           console.error("Reverse geocoding error:", error);
-          setArea("Unable to detect area");
+
+          setLocation({
+            address: "Address unavailable",
+            latitude,
+            longitude,
+          });
         } finally {
           setLoading(false);
         }
       },
+
       (error) => {
-        console.error("Geolocation error:", error);
+        console.error("Location error:", error);
+
+        let message = "Unable to detect location";
 
         if (error.code === error.PERMISSION_DENIED) {
-          setArea("Please allow location access");
+          message = "Please allow location access";
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          setArea("Location unavailable");
+          message = "Location information unavailable";
         } else if (error.code === error.TIMEOUT) {
-          setArea("Location request timed out");
-        } else {
-          setArea("Unable to detect location");
+          message = "Location request timed out";
         }
+
+        setLocation({
+          address: message,
+          latitude: null,
+          longitude: null,
+        });
 
         setLoading(false);
       },
+
       {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 20000,
         maximumAge: 0,
       }
     );
   };
 
+  // Automatically detect location when page loads
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Report location:", area);
+    if (!location.latitude || !location.longitude) {
+      alert("Please allow location access first.");
+      return;
+    }
 
-    // TODO:
-    // navigate(`/report?area=${encodeURIComponent(area)}`);
-  }
+    console.log("Report Location:", {
+      address: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    });
+
+    /*
+      Example:
+
+      navigate(
+        `/report?address=${encodeURIComponent(
+          location.address
+        )}&lat=${location.latitude}&lng=${location.longitude}`
+      );
+    */
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto -mt-6 sm:-mt-8 md:-mt-10 relative z-10 px-3 sm:px-4">
@@ -112,7 +200,7 @@ const Search = () => {
           gap-3
         "
       >
-        {/* Location Section */}
+        {/* LOCATION */}
         <div
           className="
             w-full
@@ -125,7 +213,7 @@ const Search = () => {
             border border-gray-100
           "
         >
-          {/* Location Icon */}
+          {/* Icon */}
           <div
             className="
               shrink-0
@@ -139,10 +227,10 @@ const Search = () => {
             <FaMapMarkerAlt className="text-brand-green text-sm sm:text-base" />
           </div>
 
-          {/* Location Text */}
+          {/* Address */}
           <div className="flex-1 min-w-0">
             <p className="text-[10px] sm:text-[11px] text-gray-400 font-semibold uppercase tracking-wide">
-              Current Location
+              Precise Location
             </p>
 
             <p
@@ -151,12 +239,20 @@ const Search = () => {
                 text-xs sm:text-sm
                 text-gray-700
                 font-medium
-                truncate
+                leading-5
               "
-              title={area}
+              title={location.address}
             >
-              {area || "Detecting your location..."}
+              {location.address || "Detecting your location..."}
             </p>
+
+            {/* Coordinates */}
+            {location.latitude && location.longitude && (
+              <p className="text-[10px] text-gray-400 mt-0.5">
+                {location.latitude.toFixed(6)},{" "}
+                {location.longitude.toFixed(6)}
+              </p>
+            )}
           </div>
 
           {/* Refresh */}
@@ -180,7 +276,9 @@ const Search = () => {
             "
           >
             <FaLocationArrow
-              className={`text-xs ${loading ? "animate-spin" : ""}`}
+              className={`text-xs ${
+                loading ? "animate-spin" : ""
+              }`}
             />
 
             <span className="hidden sm:inline text-xs font-semibold">
@@ -189,7 +287,7 @@ const Search = () => {
           </button>
         </div>
 
-        {/* Report Issue Button */}
+        {/* REPORT ISSUE */}
         <button
           type="submit"
           className="
@@ -200,8 +298,7 @@ const Search = () => {
             bg-brand-green
             text-white
             font-semibold
-            text-sm
-            sm:text-base
+            text-sm sm:text-base
             px-5 py-3
             rounded-xl
             hover:bg-brand-green/90
