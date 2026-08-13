@@ -1,40 +1,32 @@
-import {
-  FaRoad,
-  FaTrash,
-  FaLightbulb,
-  FaTint,
-  FaTree,
-  FaShieldAlt,
-} from "react-icons/fa";
+import roadsImage from "../../assets/services/roads.png";
+import garbageImage from "../../assets/services/garbage.png";
+import streetlightImage from "../../assets/services/street.png";
+import waterImage from "../../assets/services/water.png";
+import safetyImage from "../../assets/services/man.png";
 
 const services = [
   {
-    icon: <FaRoad />,
+    image: roadsImage,
     title: "Roads & Potholes",
     desc: "Damaged roads, potholes, broken footpaths",
   },
   {
-    icon: <FaTrash />,
+    image: garbageImage,
     title: "Garbage & Sanitation",
     desc: "Uncollected waste, overflowing bins",
   },
   {
-    icon: <FaLightbulb />,
+    image: streetlightImage,
     title: "Street Lighting",
     desc: "Broken or non-functional streetlights",
   },
   {
-    icon: <FaTint />,
+    image: waterImage,
     title: "Water Supply",
     desc: "Leakage, contamination, low pressure",
   },
   {
-    icon: <FaTree />,
-    title: "Parks & Public Spaces",
-    desc: "Damaged parks, overgrowth, encroachment",
-  },
-  {
-    icon: <FaShieldAlt />,
+    image: safetyImage,
     title: "Public Safety",
     desc: "Open manholes, unsafe construction sites",
   },
@@ -43,16 +35,76 @@ const services = [
 const ServiceGrid = () => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-      {services.map((s) => (
+      {services.map((service) => (
         <div
-          key={s.title}
-          className="bg-white border border-gray-100 rounded-2xl p-5 md:p-6 hover:shadow-md hover:-translate-y-1 transition"
+          key={service.title}
+          className="
+            bg-white
+            border border-gray-100
+            rounded-2xl
+            overflow-hidden
+            hover:shadow-lg
+            hover:-translate-y-1
+            transition-all
+            duration-300
+            group
+          "
         >
-          <div className="w-11 h-11 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center text-lg mb-4">
-            {s.icon}
+          {/* Image */}
+          <div
+            className="
+              w-full
+              h-28
+              sm:h-36
+              md:h-40
+              bg-gray-50
+              flex
+              items-center
+              justify-center
+              overflow-hidden
+              p-3
+              sm:p-4
+            "
+          >
+            <img
+              src={service.image}
+              alt={service.title}
+              className="
+                w-full
+                h-full
+                object-contain
+                group-hover:scale-105
+                transition-transform
+                duration-500
+              "
+            />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">{s.title}</h3>
-          <p className="text-sm text-gray-500">{s.desc}</p>
+
+          {/* Content */}
+          <div className="p-4 md:p-5">
+            <h3
+              className="
+                font-semibold
+                text-gray-900
+                mb-1
+                text-sm
+                md:text-base
+              "
+            >
+              {service.title}
+            </h3>
+
+            <p
+              className="
+                text-xs
+                md:text-sm
+                text-gray-500
+                leading-relaxed
+              "
+            >
+              {service.desc}
+            </p>
+          </div>
         </div>
       ))}
     </div>
