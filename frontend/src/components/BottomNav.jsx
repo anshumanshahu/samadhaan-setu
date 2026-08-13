@@ -11,7 +11,7 @@ const items = [
   { key: "home", label: "Home", icon: <FaHome /> },
   { key: "track", label: "Track Status", icon: <FaMapMarkedAlt /> },
   { key: "report", label: "Report", icon: <FaPlus />, center: true },
-  { key: "complaints", label: "Your Complaints", icon: <FaClipboardList /> },
+  { key: "complaints", label: "Solved Reports", icon: <FaClipboardList /> },
   { key: "profile", label: "Profile", icon: <FaUserCircle /> },
 ];
 
