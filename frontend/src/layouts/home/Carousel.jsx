@@ -30,10 +30,10 @@ const Carousel = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      // Pehle text ko fade out karo
+      
       setFade(false);
       
-      // 300ms baad text change karo aur wapas fade in karo
+
       setTimeout(() => {
         setActive((a) => (a + 1) % slides.length);
         setFade(true);
@@ -43,7 +43,7 @@ const Carousel = () => {
     return () => clearInterval(id);
   }, []);
 
-  // Jab user dots par click kare tab bhi smooth transition ho
+ 
   const handleDotClick = (index) => {
     if (index === active) return;
     setFade(false);
