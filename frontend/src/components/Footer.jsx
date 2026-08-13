@@ -1,4 +1,4 @@
-import logo from "../assets/logo.png";
+import logo from "../assets/logo_name.png";
 import { FaFacebookF } from "react-icons/fa";
 
 const footerLinks = [
@@ -34,7 +34,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-8">
           <div className="max-w-xs">
-            <img src={logo} alt="Samadhaan Setu" className="h-16 w-auto mb-3" />
+            <img src={logo} alt="Samadhaan Setu" className="h-25 w-auto mb-3" />
             <p className="text-sm text-gray-500 leading-relaxed">
               Connecting citizens with municipal authorities to report and
               resolve civic issues faster.
