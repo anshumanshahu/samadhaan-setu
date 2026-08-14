@@ -1,6 +1,5 @@
 import roadsImage from "../../assets/services/roads.png";
 import garbageImage from "../../assets/services/garbage.png";
-import streetlightImage from "../../assets/services/street.png";
 import waterImage from "../../assets/services/water.png";
 import safetyImage from "../../assets/services/man.png";
 
@@ -14,11 +13,6 @@ const services = [
     image: garbageImage,
     title: "Garbage & Sanitation",
     desc: "Uncollected waste, overflowing bins",
-  },
-  {
-    image: streetlightImage,
-    title: "Street Lighting",
-    desc: "Broken or non-functional streetlights",
   },
   {
     image: waterImage,
