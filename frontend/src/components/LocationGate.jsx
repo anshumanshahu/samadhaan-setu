@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-// Major Indian cities currently supported — add/remove as the platform expands
+
 const SUPPORTED_CITIES = [
   { name: "Nagpur", lat: 21.1458, lng: 79.0882 },
   { name: "Mumbai", lat: 19.076, lng: 72.8777 },
@@ -18,7 +18,7 @@ const SUPPORTED_CITIES = [
   { name: "Nashik", lat: 19.9975, lng: 73.7898 },
 ];
 
-const MAX_DISTANCE_KM = 30; // radius around each city center
+const MAX_DISTANCE_KM = 30; 
 
 function getDistanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -33,7 +33,7 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// Returns the nearest supported city if the user is within range, else null
+
 function findNearestSupportedCity(lat, lng) {
   let nearest = null;
   let nearestDistance = Infinity;
@@ -50,7 +50,7 @@ function findNearestSupportedCity(lat, lng) {
 }
 
 const LocationGate = ({ children }) => {
-  // checking | allowed | outside | denied | unsupported
+
   const [status, setStatus] = useState("checking");
 
   function checkLocation() {
@@ -74,7 +74,7 @@ const LocationGate = ({ children }) => {
 
   useEffect(() => {
     checkLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   if (status === "allowed") return children;

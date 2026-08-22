@@ -7,7 +7,7 @@ import {
   FaCopy,
 } from "react-icons/fa";
 
-// Keep this list identical to the one in LocationGate.jsx
+
 const SUPPORTED_CITIES = [
   "nagpur",
   "mumbai",
@@ -75,9 +75,7 @@ const Search = () => {
           const data = await response.json();
           const address = data.address || {};
 
-          // -----------------------------
-          // SUPPORTED CITY VALIDATION
-          // -----------------------------
+          
 
           const countryCode = address.country_code?.toLowerCase() || "";
 
@@ -119,9 +117,7 @@ const Search = () => {
               .toString()
               .trim();
 
-          // -----------------------------
-          // DETAILED ADDRESS
-          // -----------------------------
+          
 
           const houseNumber = address.house_number || "";
           const houseName = address.house_name || "";
@@ -233,9 +229,7 @@ const Search = () => {
 
     console.log("Report Location:", reportLocation);
 
-    /*
-      Navigate to report page here.
-    */
+    
   };
 
   const coordinates =
