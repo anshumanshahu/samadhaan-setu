@@ -1,0 +1,94 @@
+﻿# Samadhaan Setu
+
+Samadhaan Setu is an AI-powered civic issue reporting Progressive Web App (PWA) that helps citizens report common civic problems such as potholes, garbage overflow, water leakage, and manholes.
+
+## Features
+
+- Precise location capture with latitude and longitude
+- Image-based civic issue classification
+- Automatic department-wise issue routing
+- Separate admin panels for different civic departments
+- Complaint status tracking
+- Delayed complaint escalation
+- City-wise issue visibility
+- Resolution transparency with before/after images
+- Transparency leaderboard
+
+## AI Model
+
+Samadhaan Setu uses **MobileNetV2 with Transfer Learning** for image classification.
+
+- Dataset: ~4,000 collected images
+- Classes:
+  - Pothole
+  - Garbage Overflow
+  - Water Leakage
+  - Manhole
+  - Unknown
+- Training: Google Colab GPU
+- Framework: TensorFlow / Keras
+- Deployment format: TensorFlow.js
+
+### Model Flow
+
+Citizen Image  
+↓  
+MobileNetV2  
+↓  
+Custom Classifier  
+↓  
+Civic Issue Category  
+↓  
+Relevant Department
+
+## Workflow
+
+1. Citizen opens the PWA.
+2. The application fetches the user's precise location.
+3. Latitude and longitude are shown to the citizen.
+4. Citizen uploads an image of the civic issue.
+5. MobileNetV2 classifies the image.
+6. The issue is routed to the appropriate department.
+7. Admin assigns the issue to a field worker.
+8. The issue status is updated.
+9. After resolution, evidence can be uploaded.
+10. Citizens can view the progress for transparency.
+
+## Escalation
+
+If an issue remains inactive for a defined period, such as 3 days, the system can notify a higher-level administrator for escalation.
+
+## Supported Cities
+
+- Nagpur
+- Mumbai
+- Pune
+- Delhi
+- Bengaluru
+- Hyderabad
+- Chennai
+- Kolkata
+- Ahmedabad
+- Jaipur
+- Lucknow
+- Surat
+- Indore
+- Nashik
+
+## Technology Stack
+
+- React
+- Progressive Web App (PWA)
+- Node.js
+- Express.js
+- TensorFlow / Keras
+- MobileNetV2
+- TensorFlow.js
+- Google Colab
+- Git & GitHub
+
+## Goal
+
+The goal of Samadhaan Setu is to create a **smart, AI-assisted, location-aware, and transparent civic issue reporting system** that improves communication between citizens and municipal authorities.
+
+**Citizen → AI Classific ation → Department → Action → Resolution → Transparency**
