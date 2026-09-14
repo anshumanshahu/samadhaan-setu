@@ -92,3 +92,6 @@ If an issue remains inactive for a defined period, such as 3 days, the system ca
 The goal of Samadhaan Setu is to create a **smart, AI-assisted, location-aware, and transparent civic issue reporting system** that improves communication between citizens and municipal authorities.
 
 **Citizen → AI Classific ation → Department → Action → Resolution → Transparency**
+
+
+napkin + GPT = nshumansahu@gmail.com
