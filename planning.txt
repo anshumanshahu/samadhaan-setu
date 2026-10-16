@@ -1,4 +1,4 @@
-﻿# Samadhaan Setu
+# Samadhaan Setu
 
 Samadhaan Setu is an AI-powered civic issue reporting Progressive Web App (PWA) that helps citizens report common civic problems such as potholes, garbage overflow, water leakage, and manholes.
 
@@ -16,7 +16,7 @@ Samadhaan Setu is an AI-powered civic issue reporting Progressive Web App (PWA) 
 
 ## AI Model
 
-Samadhaan Setu uses **MobileNetV2 with Transfer Learning** for image classification.
+Samadhaan Setu uses **MobileNetV2 with Transfer Learning** for image classification, served through a dedicated Python microservice.
 
 - Dataset: ~4,000 collected images
 - Classes:
@@ -25,21 +25,31 @@ Samadhaan Setu uses **MobileNetV2 with Transfer Learning** for image classificat
   - Water Leakage
   - Manhole
   - Unknown
-- Training: Google Colab GPU
+- Training: Google Colab (GPU)
 - Framework: TensorFlow / Keras
-- Deployment format: TensorFlow.js
+- Model Serving: FastAPI (Python microservice)
 
 ### Model Flow
 
-Citizen Image  
-↓  
-MobileNetV2  
-↓  
-Custom Classifier  
-↓  
-Civic Issue Category  
-↓  
+Citizen Image
+↓
+React Frontend (image upload)
+↓
+Node.js/Express Backend
+↓
+FastAPI ML Microservice (MobileNetV2)
+↓
+Civic Issue Category + Confidence Score
+↓
 Relevant Department
+
+## Architecture
+
+The system follows a microservice-based architecture where the Node.js backend handles core application logic (users, complaints, departments, admin), while a separate FastAPI service exclusively handles AI model inference. The Node backend communicates with the FastAPI service internally via REST API calls.
+
+```
+React (Frontend) → Node.js/Express (Main Backend) → FastAPI (ML Service) → MobileNetV2 Model
+```
 
 ## Workflow
 
@@ -47,12 +57,13 @@ Relevant Department
 2. The application fetches the user's precise location.
 3. Latitude and longitude are shown to the citizen.
 4. Citizen uploads an image of the civic issue.
-5. MobileNetV2 classifies the image.
-6. The issue is routed to the appropriate department.
-7. Admin assigns the issue to a field worker.
-8. The issue status is updated.
-9. After resolution, evidence can be uploaded.
-10. Citizens can view the progress for transparency.
+5. Node backend forwards the image to the FastAPI ML service.
+6. MobileNetV2 (via FastAPI) classifies the image and returns the category with a confidence score.
+7. The issue is routed to the appropriate department.
+8. Admin assigns the issue to a field worker.
+9. The issue status is updated.
+10. After resolution, evidence can be uploaded.
+11. Citizens can view the progress for transparency.
 
 ## Escalation
 
@@ -81,9 +92,8 @@ If an issue remains inactive for a defined period, such as 3 days, the system ca
 - Progressive Web App (PWA)
 - Node.js
 - Express.js
-- TensorFlow / Keras
+- FastAPI (Python)
 - MobileNetV2
-- TensorFlow.js
 - Google Colab
 - Git & GitHub
 
@@ -91,7 +101,6 @@ If an issue remains inactive for a defined period, such as 3 days, the system ca
 
 The goal of Samadhaan Setu is to create a **smart, AI-assisted, location-aware, and transparent civic issue reporting system** that improves communication between citizens and municipal authorities.
 
-**Citizen → AI Classific ation → Department → Action → Resolution → Transparency**
+**Citizen → AI Classification → Department → Action → Resolution → Transparency**
 
-
-napkin + GPT = nshumansahu@gmail.com
+**For Transperency we use Bluesky**
