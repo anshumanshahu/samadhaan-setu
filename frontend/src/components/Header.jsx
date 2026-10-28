@@ -1,50 +1,81 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
 import logo from "../assets/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "How it Works", href: "/under-development" },
-  { label: "Report Issue", href: "/under-development" },
-  { label: "Track Status", href: "/under-development" },
-  { label: "About", href: "/under-development" },
+  { label: "Home", to: "/" },
+  { label: "How it Works", to: "/under-development" },
+  { label: "Report Issue", to: "/under-development" },
+  { label: "Track Status", to: "/under-development" },
+  { label: "About", to: "/under-development" },
 ];
 
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const firstName = user?.name?.split(" ")[0];
+
+  const handleReport = () => {
+    setOpen(false);
+    // report page abhi bana nahi hai, login ke baad placeholder par jayega
+    navigate(user ? "/under-development" : "/login");
+  };
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
-        <NavLink to="/" className="flex items-center gap-3 min-w-0">
-          <img src={logo} alt="Samadhaan Setu" className="h-16 w-auto shrink-0" />
-          <span className="font-extrabold text-[1.05rem] sm:text-[1.2rem] md:text-[1.45rem] leading-none tracking-[-0.04em] text-brand-green whitespace-nowrap">
-            Samadhaan Setu
-          </span>
-        </NavLink>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logo} alt="Samadhaan Setu" className="h-12 w-auto" />
+          <span className="font-bold text-lg text-brand-green">Samadhaan Setu</span>
+        </Link>
 
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-[0.82rem] lg:text-[0.9rem] font-semibold text-gray-600">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
           {navLinks.map((l) => (
-            <NavLink
-              key={l.label}
-              to={l.href}
-              className={({ isActive }) =>
-                `hover:text-brand-green transition-colors duration-200 ${isActive ? "text-brand-green" : ""}`
-              }
-            >
+            <Link key={l.label} to={l.to} className="hover:text-brand-green transition">
               {l.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <NavLink
-            to="/under-development"
-            className="hidden sm:inline-flex bg-brand-green text-white text-[0.82rem] md:text-sm font-semibold px-4 md:px-5 py-2.5 rounded-full hover:bg-brand-green/90 transition-colors duration-200 whitespace-nowrap"
+          {user ? (
+            <>
+              <span className="hidden md:inline text-sm text-gray-600">
+                Hi, {firstName}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="hidden sm:inline-flex text-sm font-medium px-5 py-2.5 rounded-full border border-brand-green text-brand-green hover:bg-brand-green/5 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="hidden sm:inline-flex text-sm font-medium px-5 py-2.5 rounded-full border border-brand-green text-brand-green hover:bg-brand-green/5 transition"
+            >
+              Login
+            </Link>
+          )}
+
+          <button
+            onClick={handleReport}
+            className="hidden sm:inline-flex bg-brand-green text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-brand-green/90 transition"
           >
-            Log In / Sign Up
-          </NavLink>
+            Report an Issue
+          </button>
+
           <button
             className="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-brand-green"
             aria-label="Menu"
@@ -58,22 +89,39 @@ const Header = () => {
       {open && (
         <div className="md:hidden flex flex-col bg-white border-t border-gray-100 px-4 pb-4">
           {navLinks.map((l) => (
-            <NavLink
+            <Link
               key={l.label}
-              to={l.href}
+              to={l.to}
               onClick={() => setOpen(false)}
               className="py-3 border-b border-gray-100 text-sm font-medium text-gray-600"
             >
               {l.label}
-            </NavLink>
+            </Link>
           ))}
-          <NavLink
-            to="/under-development"
-            onClick={() => setOpen(false)}
-            className="mt-4 bg-brand-green text-white text-sm font-medium px-5 py-2.5 rounded-full text-center"
+
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="mt-4 text-sm font-medium px-5 py-2.5 rounded-full border border-brand-green text-brand-green"
+            >
+              Logout ({firstName})
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setOpen(false)}
+              className="mt-4 text-center text-sm font-medium px-5 py-2.5 rounded-full border border-brand-green text-brand-green"
+            >
+              Login / Sign up
+            </Link>
+          )}
+
+          <button
+            onClick={handleReport}
+            className="mt-3 bg-brand-green text-white text-sm font-medium px-5 py-2.5 rounded-full"
           >
             Report an Issue
-          </NavLink>
+          </button>
         </div>
       )}
     </header>

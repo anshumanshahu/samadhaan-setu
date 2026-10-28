@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaMapMarkedAlt,
@@ -6,17 +6,29 @@ import {
   FaClipboardList,
   FaUserCircle,
 } from "react-icons/fa";
-
-const items = [
-  { key: "home", label: "Home", icon: <FaHome /> },
-  { key: "track", label: "Track Status", icon: <FaMapMarkedAlt /> },
-  { key: "report", label: "Report", icon: <FaPlus />, center: true },
-  { key: "complaints", label: "Solved Reports", icon: <FaClipboardList /> },
-  { key: "profile", label: "Profile", icon: <FaUserCircle /> },
-];
+import { useAuth } from "../context/AuthContext";
 
 const BottomNav = () => {
-  const [active, setActive] = useState("home");
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  // pages abhi bane nahi hain, isliye placeholder; login ke bina login page par bhejte hain
+  const protectedTo = user ? "/under-development" : "/login";
+
+  const items = [
+    { key: "home", label: "Home", icon: <FaHome />, to: "/", active: pathname === "/" },
+    { key: "track", label: "Track Status", icon: <FaMapMarkedAlt />, to: "/under-development" },
+    { key: "report", label: "Report", icon: <FaPlus />, to: protectedTo, center: true },
+    { key: "complaints", label: "Your Complaints", icon: <FaClipboardList />, to: protectedTo },
+    {
+      key: "profile",
+      label: user ? "Profile" : "Login",
+      icon: <FaUserCircle />,
+      to: protectedTo,
+      active: pathname === "/login" || pathname === "/signup",
+    },
+  ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 pb-[env(safe-area-inset-bottom)]">
@@ -25,7 +37,7 @@ const BottomNav = () => {
           item.center ? (
             <button
               key={item.key}
-              onClick={() => setActive(item.key)}
+              onClick={() => navigate(item.to)}
               className="relative -top-4 flex flex-col items-center"
               aria-label={item.label}
             >
@@ -36,21 +48,15 @@ const BottomNav = () => {
           ) : (
             <button
               key={item.key}
-              onClick={() => setActive(item.key)}
+              onClick={() => navigate(item.to)}
               className="flex flex-col items-center gap-1 py-2.5 px-2 flex-1"
             >
-              <span
-                className={`text-lg ${
-                  active === item.key ? "text-brand-green" : "text-gray-400"
-                }`}
-              >
+              <span className={`text-lg ${item.active ? "text-brand-green" : "text-gray-400"}`}>
                 {item.icon}
               </span>
               <span
                 className={`text-[10px] leading-none text-center ${
-                  active === item.key
-                    ? "text-brand-green font-medium"
-                    : "text-gray-400"
+                  item.active ? "text-brand-green font-medium" : "text-gray-400"
                 }`}
               >
                 {item.label}
