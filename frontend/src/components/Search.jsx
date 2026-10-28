@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaMapMarkerAlt,
   FaPlus,
@@ -7,7 +8,7 @@ import {
   FaCopy,
 } from "react-icons/fa";
 
-
+// Keep this list identical to the one in LocationGate.jsx
 const SUPPORTED_CITIES = [
   "nagpur",
   "mumbai",
@@ -27,6 +28,7 @@ const SUPPORTED_CITIES = [
 ];
 
 const Search = () => {
+  const navigate = useNavigate();
   const [location, setLocation] = useState({
     address: "",
     latitude: null,
@@ -75,7 +77,9 @@ const Search = () => {
           const data = await response.json();
           const address = data.address || {};
 
-          
+          // -----------------------------
+          // SUPPORTED CITY VALIDATION
+          // -----------------------------
 
           const countryCode = address.country_code?.toLowerCase() || "";
 
@@ -117,7 +121,9 @@ const Search = () => {
               .toString()
               .trim();
 
-          
+          // -----------------------------
+          // DETAILED ADDRESS
+          // -----------------------------
 
           const houseNumber = address.house_number || "";
           const houseName = address.house_name || "";
@@ -227,9 +233,7 @@ const Search = () => {
       city: matchedCity,
     };
 
-    console.log("Report Location:", reportLocation);
-
-    
+    navigate("/report", { state: { location: reportLocation } });
   };
 
   const coordinates =

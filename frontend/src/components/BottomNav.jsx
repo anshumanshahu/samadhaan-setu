@@ -19,7 +19,7 @@ const BottomNav = () => {
   const items = [
     { key: "home", label: "Home", icon: <FaHome />, to: "/", active: pathname === "/" },
     { key: "track", label: "Track Status", icon: <FaMapMarkedAlt />, to: "/under-development" },
-    { key: "report", label: "Report", icon: <FaPlus />, to: protectedTo, center: true },
+    { key: "report", label: "Report", icon: <FaPlus />, to: "/report", center: true },
     { key: "complaints", label: "Your Complaints", icon: <FaClipboardList />, to: protectedTo },
     {
       key: "profile",

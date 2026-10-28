@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,6 +7,7 @@ const AuthPage = ({ mode }) => {
   const isSignup = mode === "signup";
   const { login, signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +24,7 @@ const AuthPage = ({ mode }) => {
     try {
       if (isSignup) await signup(form.name, form.email, form.password);
       else await login(form.email, form.password);
-      navigate("/");
+      navigate(location.state?.from || "/", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

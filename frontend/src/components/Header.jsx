@@ -21,8 +21,8 @@ const Header = () => {
 
   const handleReport = () => {
     setOpen(false);
-    // report page abhi bana nahi hai, login ke baad placeholder par jayega
-    navigate(user ? "/under-development" : "/login");
+    // /report is protected: logged-out users are sent to /login and come back after
+    navigate("/report");
   };
 
   const handleLogout = () => {
