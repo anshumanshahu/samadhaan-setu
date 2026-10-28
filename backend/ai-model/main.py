@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 # ---- Load model once at startup (not on every request) ----
-MODEL_PATH = "model/civic_model_v3.h5"
+MODEL_PATH = "civic_model_v3.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
 # Must match the alphabetical folder order from training (train_gen.class_indices)
