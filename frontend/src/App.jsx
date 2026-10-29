@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import HomePageUI from "./pages/HomePageUI";
 import AuthPage from "./pages/AuthPage";
 import ReportIssue from "./pages/ReportIssue";
+import AdminPanel from "./pages/AdminPanel";
 import UnderDevelopment from "./pages/UnderDevelopment";
 import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
@@ -26,6 +27,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ReportIssue />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminPanel />
                 </ProtectedRoute>
               }
             />

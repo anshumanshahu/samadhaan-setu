@@ -17,3 +17,9 @@ exports.protect = async (req, res, next) => {
     res.status(401).json({ message: "Session expired, please log in again" });
   }
 };
+
+// role is read from the database on every request, never from the token
+exports.adminOnly = (req, res, next) => {
+  if (req.user?.role === "admin") return next();
+  res.status(403).json({ message: "Admin access only" });
+};

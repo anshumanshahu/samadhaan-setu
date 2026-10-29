@@ -2,7 +2,7 @@ const ML_URL = import.meta.env.VITE_ML_API_URL || "http://127.0.0.1:8000";
 
 // Phone photos can be 5-12 MB. The model resizes to 224x224 anyway,
 // so we shrink first: much faster upload, same prediction quality.
-async function shrinkImage(file, maxSide = 1024) {
+export async function shrinkImage(file, maxSide = 1024) {
   try {
     const bitmap = await createImageBitmap(file);
     const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));

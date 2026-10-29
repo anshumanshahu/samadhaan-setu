@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// Pages that need a logged-in user. Others get sent to /login and
-// come back here automatically after logging in.
-const ProtectedRoute = ({ children }) => {
+// <ProtectedRoute>            -> any logged-in user
+// <ProtectedRoute role="admin"> -> admins only (the backend checks this again)
+const ProtectedRoute = ({ children, role }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -17,6 +17,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+
+  if (role && user.role !== role) {
+    return <Navigate to="/" replace />;
   }
 
   return children;

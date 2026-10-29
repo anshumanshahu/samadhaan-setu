@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "How it Works", to: "/under-development" },
-  { label: "Report Issue", to: "/under-development" },
+  // { label: "Report Issue", to: "/under-development" },
   { label: "Track Status", to: "/under-development" },
   { label: "About", to: "/under-development" },
 ];
@@ -45,6 +45,11 @@ const Header = () => {
               {l.label}
             </Link>
           ))}
+          {user?.role === "admin" && (
+            <Link to="/admin" className="text-brand-coral font-semibold hover:opacity-80 transition">
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -98,6 +103,15 @@ const Header = () => {
               {l.label}
             </Link>
           ))}
+          {user?.role === "admin" && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className="py-3 border-b border-gray-100 text-sm font-semibold text-brand-coral"
+            >
+              Admin panel
+            </Link>
+          )}
 
           {user ? (
             <button
