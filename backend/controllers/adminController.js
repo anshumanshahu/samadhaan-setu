@@ -62,8 +62,16 @@ exports.updateStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    const update = { status };
-    if (typeof adminNote === "string") update.adminNote = adminNote.trim().slice(0, 300);
+    const current = await Complaint.findById(id).select("status adminNote");
+    if (!current) return res.status(404).json({ message: "Not found" });
+
+    const note =
+      typeof adminNote === "string" ? adminNote.trim().slice(0, 300) : current.adminNote;
+    const changed = current.status !== status || note !== current.adminNote;
+
+    const update = { $set: { status, adminNote: note } };
+    // log the change so the citizen sees it on the Track Status timeline
+    if (changed) update.$push = { statusHistory: { status, note, at: new Date() } };
 
     const complaint = await Complaint.findByIdAndUpdate(id, update, {
       new: true,
@@ -73,7 +81,6 @@ exports.updateStatus = async (req, res) => {
       .populate("user", "name email")
       .lean();
 
-    if (!complaint) return res.status(404).json({ message: "Not found" });
     res.json({ complaint });
   } catch (err) {
     console.error("Update status error:", err);

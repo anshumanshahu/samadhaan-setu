@@ -32,6 +32,16 @@ const complaintSchema = new mongoose.Schema(
 
     status: { type: String, enum: STATUSES, default: "submitted", index: true },
     adminNote: { type: String, trim: true, maxlength: 300, default: "" },
+
+    // every status change; shown as a timeline on the Track Status page
+    statusHistory: [
+      {
+        _id: false,
+        status: { type: String, enum: STATUSES },
+        note: { type: String, trim: true, maxlength: 300, default: "" },
+        at: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

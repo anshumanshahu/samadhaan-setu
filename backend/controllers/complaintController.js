@@ -82,6 +82,7 @@ exports.createComplaint = async (req, res) => {
       city: cleanText(req.body.city, 80),
       accuracy: Number.isFinite(accuracy) ? Math.round(accuracy) : undefined,
       image: { data: req.file.buffer, contentType },
+      statusHistory: [{ status: "submitted" }],
     });
 
     res.status(201).json({
@@ -121,6 +122,21 @@ exports.getImage = async (req, res) => {
     res.send(complaint.image.data);
   } catch (err) {
     console.error("Get image error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// The logged-in user's own complaints (no photo data, photos load separately)
+exports.listMine = async (req, res) => {
+  try {
+    const items = await Complaint.find({ user: req.user._id })
+      .select("-image")
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+    res.json({ items });
+  } catch (err) {
+    console.error("List mine error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

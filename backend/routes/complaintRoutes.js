@@ -1,7 +1,11 @@
 const express = require("express");
 const multer = require("multer");
 const rateLimit = require("express-rate-limit");
-const { createComplaint, getImage } = require("../controllers/complaintController");
+const {
+  createComplaint,
+  getImage,
+  listMine,
+} = require("../controllers/complaintController");
 const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -33,6 +37,7 @@ const createLimiter = rateLimit({
 });
 
 router.post("/", protect, createLimiter, uploadImage, createComplaint);
+router.get("/mine", protect, listMine);
 router.get("/:id/image", protect, getImage);
 
 module.exports = router;
