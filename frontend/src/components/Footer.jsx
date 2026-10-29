@@ -1,29 +1,36 @@
+import { Link } from "react-router-dom";
 import logo from "../assets/logo_name.png";
-import { FaFacebookF } from "react-icons/fa";
+import { FaLinkedinIn } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 const footerLinks = [
   {
     title: "Services",
     links: [
-      "Report an Issue",
-      "Track Complaint",
-      "Community Verification",
-      "Ward Dashboard",
-      "Analytics",
+      { label: "Report an Issue", to: "/report" },
+      { label: "Track Complaint", to: "/track" },
     ],
   },
   {
     title: "Company",
-    links: ["About Us", "Careers", "Press", "Blog", "Partners"],
+    links: [
+      { label: "How it Works", to: "/how-it-works" },
+      { label: "About Us", to: "/about" },
+    ],
   },
   {
-    title: "Support",
+    title: "Connect",
     links: [
-      "Help Center",
-      "Contact Us",
-      "Privacy Policy",
-      "Terms of Service",
-      "Grievance Policy",
+      {
+        label: "LinkedIn",
+        to: "https://www.linkedin.com/in/anshuman-shahu/",
+        external: true,
+      },
+      {
+        label: "X",
+        to: "https://x.com/anshumanshahu12",
+        external: true,
+      },
     ],
   },
 ];
@@ -49,13 +56,24 @@ const Footer = () => {
                 </p>
                 <ul className="space-y-2">
                   {col.links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-xs sm:text-sm text-gray-500 hover:text-brand-green transition"
-                      >
-                        {link}
-                      </a>
+                    <li key={link.label}>
+                      {link.external ? (
+                        <a
+                          href={link.to}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs sm:text-sm text-gray-500 hover:text-brand-green transition"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          to={link.to}
+                          className="text-xs sm:text-sm text-gray-500 hover:text-brand-green transition"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -70,11 +88,22 @@ const Footer = () => {
           </p>
           <div className="flex items-center gap-3">
             <a
-              href="#"
-              aria-label="Facebook"
+              href="https://www.linkedin.com/in/anshuman-shahu/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Anshuman Shahu on LinkedIn"
               className="w-8 h-8 rounded-full bg-brand-green/10 text-brand-green flex items-center justify-center hover:bg-brand-green hover:text-white transition"
             >
-              <FaFacebookF className="text-xs" />
+              <FaLinkedinIn className="text-xs" />
+            </a>
+            <a
+              href="https://x.com/anshumanshahu12"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Anshuman Shahu on X"
+              className="w-8 h-8 rounded-full bg-brand-green/10 text-brand-green flex items-center justify-center hover:bg-brand-green hover:text-white transition"
+            >
+              <FaXTwitter className="text-xs" />
             </a>
           </div>
         </div>

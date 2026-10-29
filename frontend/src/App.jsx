@@ -10,6 +10,8 @@ import ReportIssue from "./pages/ReportIssue";
 import AdminPanel from "./pages/AdminPanel";
 import TrackStatus from "./pages/TrackStatus";
 import UnderDevelopment from "./pages/UnderDevelopment";
+import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
 import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
 
@@ -23,6 +25,8 @@ function App() {
             <Route path="/" element={<HomePageUI />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/about" element={<About />} />
             <Route
               path="/report"
               element={
